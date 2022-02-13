@@ -136,3 +136,4 @@ dmypy.json
 #data-files-ignore
 
 cast.csv
+csgo_round_snapshots.csv
