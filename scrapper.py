@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException,TimeoutException
 
 import multiprocessing
 import concurrent.futures
@@ -33,10 +33,9 @@ def get_hrefs(driver,i):
     return hrefs
 
 def add_to_df(driver,link,df):
-    driver.get(link)
+    driver.get(link.split("-")[0])
 
     WebDriverWait(driver,20).until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[2]/dl[1]/dd[1]/a')))
-
  
     name = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[1]/div/div[1]/h1')
     make = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[2]/dl[1]/dd[1]/a')
@@ -59,6 +58,9 @@ def add_to_df(driver,link,df):
 
     higlights_list = driver.find_elements(By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[3]/div[2]/div/ul/li')
     flaws_list = driver.find_elements(By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[3]/div[5]/div/ul/li')
+    num_of_bids = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[3]/div[1]/div/div/ul/li[3]/span[2]')
+    num_of_comments = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[3]/div[1]/div/div/ul/li[4]/span[2]')
+    num_of_images = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[2]/div/div[1]/div/div[2]/div[2]/div[4]/div')
     if engine.text.find("Electric") != -1:
         return
     d_year = name.text.split(" ")[0]
@@ -73,12 +75,13 @@ def add_to_df(driver,link,df):
     else:
         d_trans_speed = None
 
+    num_of_images = num_of_images.text[num_of_images.text.find("(")+1:num_of_images.text.find(")")]
+
     row = {
         'year' : d_year,
         'make' : make.text,
         'model': model.text,
         'mileage': mileage.text,
-        'title': d_title,
         'state of origin': d_loc,
         'engine size': d_engine_size,
         'engine type': d_engine_type,
@@ -90,6 +93,9 @@ def add_to_df(driver,link,df):
         'numberg of higlights': len(higlights_list),
         'number of flaws': len(flaws_list),
         'price': price.text,
+        'num of bids': num_of_bids.text,
+        'num of comments': num_of_comments.text,
+        'num of images': num_of_images,
     }
 
     df.append(row)
@@ -98,11 +104,16 @@ driver = webdriver.Firefox(executable_path="./geckodriver")
 
 data = []
 
-for i in range(111,116):
+for i in range(1,118):
     links = get_hrefs(driver,i)
 
     for link in links:
-        add_to_df(driver,link,data)
+        try:
+            add_to_df(driver,link,data)
+        except NoSuchElementException as e:
+            print(f"{link} - {e}")
+        except TimeoutException:
+            print(link, " not found")
 
     df = pd.DataFrame(data)
 
