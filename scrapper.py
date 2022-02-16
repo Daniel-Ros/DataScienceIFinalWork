@@ -36,7 +36,7 @@ def add_to_df(driver,link,df):
     driver.get(link.split("-")[0])
 
     WebDriverWait(driver,20).until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[2]/dl[1]/dd[1]/a')))
- 
+    sold = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[3]/div[1]/div/div/ul/li[1]/span[2]')
     name = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[1]/div/div[1]/h1')
     make = driver.find_element(By.XPATH, '/html/body/div/div[2]/div[5]/div[1]/div[2]/dl[1]/dd[1]/a')
     try:
@@ -92,10 +92,11 @@ def add_to_df(driver,link,df):
         'color': color.text,
         'numberg of higlights': len(higlights_list),
         'number of flaws': len(flaws_list),
-        'price': price.text,
         'num of bids': num_of_bids.text,
         'num of comments': num_of_comments.text,
         'num of images': num_of_images,
+        'sold': 1 if "sold" in sold.text.lower() else 0,
+        'price': price.text,
     }
 
     df.append(row)
