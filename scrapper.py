@@ -100,22 +100,26 @@ def add_to_df(driver,link,df):
     }
 
     df.append(row)
+def main():
+    driver = webdriver.Firefox(executable_path="./geckodriver")
 
-driver = webdriver.Firefox(executable_path="./geckodriver")
+    data = []
 
-data = []
+    for i in range(1,118):
+        links = get_hrefs(driver,i)
 
-for i in range(1,118):
-    links = get_hrefs(driver,i)
+        for link in links:
+            try:
+                add_to_df(driver,link,data)
+            except NoSuchElementException as e:
+                print(f"{link} - {e}")
+            except TimeoutException:
+                print(link, " not found")
 
-    for link in links:
-        try:
-            add_to_df(driver,link,data)
-        except NoSuchElementException as e:
-            print(f"{link} - {e}")
-        except TimeoutException:
-            print(link, " not found")
+        df = pd.DataFrame(data)
 
-    df = pd.DataFrame(data)
+        df.to_csv(f"my_data_{i}.csv")
 
-    df.to_csv(f"my_data_{i}.csv")
+
+if __name__ == "__main__":
+    main()
