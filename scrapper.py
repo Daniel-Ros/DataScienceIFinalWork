@@ -1,19 +1,8 @@
-from dataclasses import dataclass
-from lib2to3.pgen2 import driver
-from multiprocessing.connection import wait
-import re
-import sys
-from threading import Thread
-from time import sleep
-import traceback
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException,TimeoutException
-
-import multiprocessing
-import concurrent.futures
 
 import pandas as pd
 
@@ -100,6 +89,8 @@ def add_to_df(driver,link,df):
     }
 
     df.append(row)
+
+    
 def main():
     driver = webdriver.Firefox(executable_path="./geckodriver")
 
