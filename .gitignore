@@ -135,6 +135,7 @@ dmypy.json
 
 #data-files-ignore
 
+*.log
 cast.csv
 csgo_round_snapshots.csv
 heart.csv
